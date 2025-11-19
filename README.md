@@ -39,7 +39,7 @@ Users are guided through a full OAuth2 authorization flow, with support for mult
 
 ---
 
-# Клиентский жизненный цикл
+# Client life-cycle
 
 ### 1. 🖼️ User registration 
 ![User registration ](./screenshots/registration.jpg)
