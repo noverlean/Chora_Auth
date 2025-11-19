@@ -42,16 +42,16 @@ Chora_Auth — это автономный микросервис аутенти
 # Клиентский жизненный цикл
 
 ### 1. 🖼️ User registration 
-![Landing Screen](./screenshots/registration.jpg)
+![User registration ](./screenshots/registration.jpg)
 
 ### 2. 🖼️ Redirect From Client
-![Landing Screen](./screenshots/redirectFromClient.jpg)
+![Redirect From Client](./screenshots/redirectFromClient.jpg)
 
 ### 3. 🖼️ Login Form
-![Landing Screen](./screenshots/loginForm.jpg)
+![Login Form](./screenshots/loginForm.jpg)
 
 ### 4. 🖼️ Client Code
-![Landing Screen](./screenshots/clientCode.jpg)
+![Client Code](./screenshots/clientCode.jpg)
 
 ### 5. 🖼️ Token Pair
-![Landing Screen](./screenshots/tokenPair.jpg)
+![Token Pair](./screenshots/tokenPair.jpg)
