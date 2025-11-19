@@ -1,33 +1,40 @@
-package chora.auth.models;
+package chora.auth.model;
 
 import jakarta.persistence.*;
+import jdk.jfr.SettingDefinition;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.sql.Timestamp;
+import java.util.UUID;
 
 @Entity
-@Table(name = "refresh_token")
+@Table(name = "refresh_tokens")
+@Setter
+@Getter
 public class RefreshToken {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column
-    private Long id;
-
-    @Column
-    private Long deviceId;
-
-    @Column
     @GeneratedValue(strategy = GenerationType.UUID)
-    private String jti;
+    @Column
+    private UUID id;
+
+    @ManyToOne
+    @JoinColumn(name = "device_id")
+    private Device device;
+
+    @Column
+    private UUID jti;
 
     @Column
     private Timestamp expiresAt;
 
-    @Column
-    private Timestamp rotatedFrom;
+    @Column(nullable = false)
+    private boolean revoked = false;
 
     @Column
     private Timestamp revokedAt;
 
     @Column
     private String reason;
+
 }

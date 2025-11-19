@@ -4,6 +4,7 @@
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                    https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
 
+    <!-- Таблица авторизаций -->
     <changeSet id="2" author="noverlin">
         <createTable tableName="oauth2_authorization">
             <column name="id" type="VARCHAR(100)">
@@ -19,26 +20,46 @@
                 <constraints nullable="false"/>
             </column>
             <column name="authorized_scopes" type="TEXT"/>
-            <column name="attributes" type="BYTEA"/>
+            <column name="attributes" type="TEXT"/>
             <column name="state" type="VARCHAR(500)"/>
-            <column name="authorization_code_value" type="BYTEA"/>
+
+            <!-- Authorization Code -->
+            <column name="authorization_code_value" type="TEXT"/>
             <column name="authorization_code_issued_at" type="TIMESTAMP"/>
             <column name="authorization_code_expires_at" type="TIMESTAMP"/>
-            <column name="authorization_code_metadata" type="BYTEA"/>
-            <column name="access_token_value" type="BYTEA"/>
+            <column name="authorization_code_metadata" type="TEXT"/>
+
+            <!-- Access Token -->
+            <column name="access_token_value" type="TEXT"/>
             <column name="access_token_issued_at" type="TIMESTAMP"/>
             <column name="access_token_expires_at" type="TIMESTAMP"/>
-            <column name="access_token_metadata" type="BYTEA"/>
+            <column name="access_token_metadata" type="TEXT"/>
             <column name="access_token_type" type="VARCHAR(100)"/>
             <column name="access_token_scopes" type="TEXT"/>
-            <column name="oidc_id_token_value" type="BYTEA"/>
+
+            <!-- OIDC ID Token -->
+            <column name="oidc_id_token_value" type="TEXT"/>
             <column name="oidc_id_token_issued_at" type="TIMESTAMP"/>
             <column name="oidc_id_token_expires_at" type="TIMESTAMP"/>
-            <column name="oidc_id_token_metadata" type="BYTEA"/>
-            <column name="refresh_token_value" type="BYTEA"/>
+            <column name="oidc_id_token_metadata" type="TEXT"/>
+
+            <!-- Refresh Token -->
+            <column name="refresh_token_value" type="TEXT"/>
             <column name="refresh_token_issued_at" type="TIMESTAMP"/>
             <column name="refresh_token_expires_at" type="TIMESTAMP"/>
-            <column name="refresh_token_metadata" type="BYTEA"/>
+            <column name="refresh_token_metadata" type="TEXT"/>
+
+            <!-- Device/User Code -->
+            <column name="user_code_value" type="TEXT"/>
+            <column name="user_code_issued_at" type="TIMESTAMP"/>
+            <column name="user_code_expires_at" type="TIMESTAMP"/>
+            <column name="user_code_metadata" type="TEXT"/>
+
+            <column name="device_code_value" type="TEXT"/>
+            <column name="device_code_issued_at" type="TIMESTAMP"/>
+            <column name="device_code_expires_at" type="TIMESTAMP"/>
+            <column name="device_code_metadata" type="TEXT"/>
         </createTable>
     </changeSet>
+
 </databaseChangeLog>

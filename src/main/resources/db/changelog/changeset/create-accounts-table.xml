@@ -1,14 +1,36 @@
-<changeSet id="1" author="noverlin">
-    <createTable tableName="accounts">
-        <column name="id"               type="UUID"         constraints="primaryKey=true"   />
-        <column name="email"            type="VARCHAR(64)"  constraints="nullable=false"    />
-        <column name="password_hash"    type="VARCHAR(128)"  constraints="nullable=false"    />
-        <column name="status"           type="VARCHAR(32)"  constraints="nullable=false"    />
-    </createTable>
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
 
-    <addCheckConstraint
-            tableName="accounts"
-            constraintName="chk_account_status"
-            checkCondition="status IN ('ACTIVE','BLOCKED')"
-    />
-</changeSet>
+    <changeSet id="4" author="noverlin">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="accounts"/>
+            </not>
+        </preConditions>
+
+        <createTable tableName="accounts">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" primaryKeyName="pk_accounts"/>
+            </column>
+            <column name="email" type="VARCHAR(64)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="password_hash" type="VARCHAR(128)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="VARCHAR(32)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <sql>
+            ALTER TABLE accounts
+                ADD CONSTRAINT chk_account_status
+                CHECK (status IN ('ACTIVE','BLOCKED'));
+        </sql>
+    </changeSet>
+
+</databaseChangeLog>

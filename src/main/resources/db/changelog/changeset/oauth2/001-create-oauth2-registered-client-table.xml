@@ -4,6 +4,7 @@
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                    https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
 
+    <!-- Таблица клиентов -->
     <changeSet id="1" author="noverlin">
         <createTable tableName="oauth2_registered_client">
             <column name="id" type="VARCHAR(100)">

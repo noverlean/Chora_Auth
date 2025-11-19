@@ -1,4 +1,4 @@
-package chora.auth.dto.sso;
+package chora.auth.dto;
 
 import lombok.Data;
 

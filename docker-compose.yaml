@@ -1,0 +1,28 @@
+version: '3.9'
+
+services:
+  db:
+    image: postgres:15          # используемый образ
+    container_name: postgres_sso_db
+    restart: always             # перезапуск при сбое
+    environment:                # переменные окружения
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: 12345678
+      POSTGRES_DB: sso_db
+    ports:                      # проброс портов
+      - "5432:5432"
+    volumes:                    # тома для хранения данных
+      - ./postgres_data:/var/lib/postgresql/data
+
+  app:
+    build: ./
+    container_name: sso
+    restart: always
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://host.docker.internal:5432/sso_db
+      SPRING_DATASOURCE_USERNAME: admin
+      SPRING_DATASOURCE_PASSWORD: 12345678
+    depends_on:
+      - db
+    ports:
+      - "8080:8080"

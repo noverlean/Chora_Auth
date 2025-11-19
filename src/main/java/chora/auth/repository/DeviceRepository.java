@@ -1,4 +1,11 @@
 package chora.auth.repository;
 
-public interface DeviceRepository {
+import chora.auth.model.Device;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.List;
+import java.util.UUID;
+
+public interface DeviceRepository extends JpaRepository<Device, String> {
+    List<Device> findByAccountId(UUID accountId);
 }

@@ -4,6 +4,7 @@
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                    https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
 
+    <!-- Таблица согласий -->
     <changeSet id="3" author="noverlin">
         <createTable tableName="oauth2_authorization_consent">
             <column name="registered_client_id" type="VARCHAR(100)">
@@ -15,9 +16,11 @@
             <column name="authorities" type="TEXT">
                 <constraints nullable="false"/>
             </column>
-            <constraints primaryKey="true" primaryKeyName="pk_oauth2_authorization_consent"
-                         primaryKeyColumns="registered_client_id, principal_name"/>
         </createTable>
+
+        <addPrimaryKey tableName="oauth2_authorization_consent"
+                       columnNames="registered_client_id,principal_name"
+                       constraintName="pk_oauth2_authorization_consent"/>
     </changeSet>
 
 </databaseChangeLog>
