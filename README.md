@@ -36,3 +36,22 @@ Users are guided through a full OAuth2 authorization flow, with support for mult
 - JWT + JWK — token generation and validation
 - Device fingerprinting — per-device refresh token tracking
 - PostgreSQL — persistent storage (optional)
+
+---
+
+# Клиентский жизненный цикл
+
+### 1. 🖼️ User registration 
+![User registration ](./screenshots/registration.jpg)
+
+### 2. 🖼️ Redirect From Client
+![Redirect From Client](./screenshots/redirectFromClient.jpg)
+
+### 3. 🖼️ Login Form
+![Login Form](./screenshots/loginForm.jpg)
+
+### 4. 🖼️ Client Code
+![Client Code](./screenshots/clientCode.jpg)
+
+### 5. 🖼️ Token Pair
+![Token Pair](./screenshots/tokenPair.jpg)
