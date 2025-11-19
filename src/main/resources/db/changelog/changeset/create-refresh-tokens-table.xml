@@ -1,0 +1,12 @@
+<changeSet id="3" author="noverlin">
+    <createTable tableName="refresh_tokens">
+        <column name="token_id" type="UUID" constraints="primaryKey=true"/>
+        <column name="device_id" type="UUID" constraints="nullable=false"/>
+        <column name="jti" type="VARCHAR(255)" constraints="nullable=false"/>
+        <column name="expires_at" type="TIMESTAMP" constraints="nullable=false"/>
+        <column name="revoked" type="BOOLEAN" defaultValueBoolean="false"/>
+        <column name="revoked_at" type="TIMESTAMP"/>
+        <column name="revoke_reason" type="VARCHAR(255)"/>
+    </createTable>
+    <addUniqueConstraint tableName="refresh_tokens" columnNames="jti" constraintName="uq_refresh_jti"/>
+</changeSet>

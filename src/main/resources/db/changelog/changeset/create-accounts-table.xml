@@ -1,0 +1,14 @@
+<changeSet id="1" author="noverlin">
+    <createTable tableName="accounts">
+        <column name="id"               type="UUID"         constraints="primaryKey=true"   />
+        <column name="email"            type="VARCHAR(64)"  constraints="nullable=false"    />
+        <column name="password_hash"    type="VARCHAR(128)"  constraints="nullable=false"    />
+        <column name="status"           type="VARCHAR(32)"  constraints="nullable=false"    />
+    </createTable>
+
+    <addCheckConstraint
+            tableName="accounts"
+            constraintName="chk_account_status"
+            checkCondition="status IN ('ACTIVE','BLOCKED')"
+    />
+</changeSet>

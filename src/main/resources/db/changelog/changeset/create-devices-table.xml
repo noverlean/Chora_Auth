@@ -1,0 +1,9 @@
+<changeSet id="2" author="noverlin">
+    <createTable tableName="devices">
+        <column name="id" type="UUID" constraints="primaryKey=true"/>
+        <column name="account_id" type="UUID" constraints="nullable=false"/>
+        <column name="label" type="VARCHAR(64)" constraints="nullable=false"/>
+        <column name="fingerprint_hash" type="VARCHAR(128)" constraints="nullable=false"/>
+        <column name="linked_at" type="TIMESTAMP" constraints="nullable=false"/>
+    </createTable>
+</changeSet>
