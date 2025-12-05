@@ -16,16 +16,11 @@ import java.util.UUID;
 public class Account {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    @Column
     private UUID id;
 
-    @Column
     private String email;
-
-    @Column
     private String passwordHash;
 
-    @Column
     @Enumerated(EnumType.STRING)
     private AccountStatus status;
 

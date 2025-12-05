@@ -1,39 +1,36 @@
 package chora.auth.config;
 
+import chora.auth.utils.DeviceAwareAuthorizationRequestConverter;
 import chora.auth.utils.JwksKeys;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.ProviderManager;
+import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
+import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
-import org.springframework.security.oauth2.server.authorization.JdbcOAuth2AuthorizationConsentService;
-import org.springframework.security.oauth2.server.authorization.JdbcOAuth2AuthorizationService;
-import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationConsentService;
-import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationService;
-import org.springframework.security.oauth2.server.authorization.client.InMemoryRegisteredClientRepository;
+import org.springframework.security.oauth2.server.authorization.*;
 import org.springframework.security.oauth2.server.authorization.client.JdbcRegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
+import org.springframework.security.oauth2.server.authorization.config.annotation.web.configurers.OAuth2AuthorizationServerConfigurer;
 import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings;
-import org.springframework.security.oauth2.server.authorization.settings.ClientSettings;
 import org.springframework.security.oauth2.server.authorization.settings.TokenSettings;
 import org.springframework.security.oauth2.server.authorization.token.*;
+import org.springframework.security.web.SecurityFilterChain;
 
 import java.time.Duration;
-import java.util.List;
 import java.util.UUID;
 
 @Configuration
@@ -53,36 +50,95 @@ public class AuthorizationServerConfig {
     }
 
     @Bean
-    public RegisteredClientRepository registeredClientRepository(JdbcTemplate jdbcTemplate) {
-        return new JdbcRegisteredClientRepository(jdbcTemplate);
+    @Order(1)
+    public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http,
+                                                                      OAuth2AuthorizationService authorizationService,
+                                                                      RegisteredClientRepository registeredClientRepository) throws Exception {
+        OAuth2AuthorizationServerConfigurer authorizationServerConfigurer =
+                new OAuth2AuthorizationServerConfigurer();
+
+        authorizationServerConfigurer.oidc(Customizer.withDefaults());
+
+        http
+                .securityMatcher(authorizationServerConfigurer.getEndpointsMatcher())
+                .authorizeHttpRequests(authorize -> authorize
+                        .anyRequest().authenticated()
+                )
+                .formLogin(Customizer.withDefaults())
+                .csrf(csrf -> csrf
+                        .ignoringRequestMatchers(authorizationServerConfigurer.getEndpointsMatcher())
+                )
+                .with(authorizationServerConfigurer, c -> c
+                        .authorizationEndpoint(ep -> ep
+                                .authorizationRequestConverter(new DeviceAwareAuthorizationRequestConverter())
+                        )
+                        .authorizationService(authorizationService)
+                        .registeredClientRepository(registeredClientRepository)
+                );
+
+        return http.build();
     }
 
     @Bean
-    public CommandLineRunner initClients(RegisteredClientRepository repository, PasswordEncoder passwordEncoder) {
-        return args -> {
-            if (repository.findByClientId("chora-client") == null) {
-                RegisteredClient client = RegisteredClient.withId(UUID.randomUUID().toString())
-                        .clientId("chora-client")
-                        .clientSecret(passwordEncoder.encode("1234567890"))
-                        .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-                        .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
-                        .redirectUri("http://localhost:8080/callback")
-                        .scope("openid")
-                        .scope("profile")
-                        .scope("email")
-                        .scope("offline_access")
-                        .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
-                        .build();
+    public RegisteredClientRepository registeredClientRepository(JdbcTemplate jdbcTemplate, PasswordEncoder passwordEncoder) {
+        JdbcRegisteredClientRepository repo = new JdbcRegisteredClientRepository(jdbcTemplate);
 
-                repository.save(client);
+        if (repo.findByClientId("chora-client") == null) {
+            RegisteredClient client = RegisteredClient.withId(UUID.randomUUID().toString())
+                    .clientId("chora-client")
+                    .clientSecret(passwordEncoder.encode("1234567890"))
+                    .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+                    .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
+                    .redirectUri("http://localhost:8080/callback")
+                    .scope("openid")
+                    .scope("profile")
+                    .scope("email")
+                    .scope("offline_access")
+                    .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
+                    .tokenSettings(TokenSettings.builder()
+                            .accessTokenTimeToLive(Duration.ofMinutes(5))
+                            .refreshTokenTimeToLive(Duration.ofDays(30))
+                            .reuseRefreshTokens(true)
+                            .build())
+                    .build();
+
+            repo.save(client);
+        }
+
+        return repo;
+    }
+
+
+    @Bean
+    public OAuth2AuthorizationService authorizationService(JdbcTemplate jdbcTemplate, RegisteredClientRepository registeredClientRepository) {
+        return new JdbcOAuth2AuthorizationService(jdbcTemplate, registeredClientRepository) {
+            @Override
+            public void save(OAuth2Authorization authorization) {
+                System.out.println("-=-=-=-=-");
+                OAuth2Authorization.Builder builder = OAuth2Authorization.from(authorization);
+
+                OAuth2AuthorizationRequest authReq =
+                        (OAuth2AuthorizationRequest) authorization.getAttributes()
+                                .get(OAuth2AuthorizationRequest.class.getName());
+
+                if (authReq != null) {
+                    String fingerprint = (String) authReq.getAdditionalParameters().get("device_fingerprint");
+                    String label = (String) authReq.getAdditionalParameters().get("device_label");
+                    if (fingerprint != null) {
+                        builder.attribute("device_fingerprint", fingerprint);
+                    }
+                    if (label != null) {
+                        builder.attribute("device_label", label);
+                    }
+                    System.out.println(fingerprint);
+                    System.out.println(label);
+                }
+
+                super.save(builder.build());
             }
         };
     }
 
-    @Bean
-    public OAuth2AuthorizationService authorizationService(JdbcTemplate jdbcTemplate, RegisteredClientRepository registeredClientRepository) {
-        return new JdbcOAuth2AuthorizationService(jdbcTemplate, registeredClientRepository);
-    }
 
     @Bean
     public OAuth2AuthorizationConsentService authorizationConsentService(
@@ -111,6 +167,4 @@ public class AuthorizationServerConfig {
                 new OAuth2RefreshTokenGenerator()
         );
     }
-
-
 }

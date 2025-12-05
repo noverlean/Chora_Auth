@@ -23,7 +23,7 @@ public final class JwksKeys {
 
             return new RSAKey.Builder(publicKey)
                     .privateKey(privateKey)
-                    .keyID(UUID.randomUUID().toString()) // уникальный kid
+                    .keyID(UUID.randomUUID().toString())
                     .build();
         } catch (Exception e) {
             throw new IllegalStateException("Ошибка генерации RSA ключа", e);

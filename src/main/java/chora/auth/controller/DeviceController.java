@@ -15,15 +15,6 @@ import java.util.UUID;
 @RequestMapping("/devices")
 public class DeviceController {
     private final DeviceService deviceService;
-    private final AccountService accountService;
-
-    @PostMapping("/link")
-    public Device link(@RequestParam UUID accountId,
-                       @RequestParam String label,
-                       @RequestParam String fingerprintHash) {
-        Account account = accountService.findById(accountId);
-        return deviceService.linkDevice(account, label, fingerprintHash);
-    }
 
     @GetMapping("/{accountId}")
     public List<Device> list(@PathVariable UUID accountId) {

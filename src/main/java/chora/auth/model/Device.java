@@ -17,22 +17,13 @@ import java.util.UUID;
 public class Device {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    @Column
     private UUID id;
 
     @ManyToOne
     @JoinColumn(name = "account_id")
     private Account account;
 
-    @OneToMany(mappedBy = "device", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<RefreshToken> refreshTokens;
-
-    @Column
     private String label;
-
-    @Column
     private String fingerprintHash;
-
-    @Column
-    private Timestamp linked_at;
+    private Timestamp linkedAt;
 }
